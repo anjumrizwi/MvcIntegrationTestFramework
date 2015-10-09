@@ -84,6 +84,7 @@ namespace MvcIntegrationTestFramework.Browsing
             // Capture the output
             AddAnyNewCookiesToCookieCollection();
             Session = LastRequestData.HttpSessionState;
+            
             return new RequestResult
             {
                 ResponseText = output.ToString(),
@@ -104,8 +105,10 @@ namespace MvcIntegrationTestFramework.Browsing
 
             foreach (string cookieName in lastResponseCookies) {
                 HttpCookie cookie = lastResponseCookies[cookieName];
+                
                 if (Cookies[cookieName] != null)
                     Cookies.Remove(cookieName);
+                
                 if((cookie.Expires == default(DateTime)) || (cookie.Expires > DateTime.Now))
                     Cookies.Add(cookie);
             }

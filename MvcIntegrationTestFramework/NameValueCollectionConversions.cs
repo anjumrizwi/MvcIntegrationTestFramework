@@ -17,6 +17,7 @@ namespace MvcIntegrationTestFramework
                 {
                     throw new NullReferenceException(kvp.Key);
                 }
+
                 if (kvp.Value.GetType().Name.Contains("Anonymous"))
                 {
                     var prefix = kvp.Key + ".";
@@ -29,9 +30,8 @@ namespace MvcIntegrationTestFramework
                 {
                     nvc.Add(kvp.Key, kvp.Value.ToString());
                 }
-
-
             }
+
             return nvc;
         }
     }

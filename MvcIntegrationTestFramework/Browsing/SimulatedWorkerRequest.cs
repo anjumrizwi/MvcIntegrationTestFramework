@@ -10,78 +10,88 @@ namespace MvcIntegrationTestFramework.Browsing
 {
     internal class SimulatedWorkerRequest : SimpleWorkerRequest
     {
-        private HttpCookieCollection cookies;
-        private readonly string httpVerbName;
-        private readonly NameValueCollection formValues;
-        private readonly NameValueCollection headers;
+        private readonly HttpCookieCollection _cookies;
+        private readonly string _httpVerbName;
+        private readonly NameValueCollection _formValues;
+        private readonly NameValueCollection _headers;
 
         public SimulatedWorkerRequest(string page, string query, TextWriter output, HttpCookieCollection cookies, string httpVerbName, NameValueCollection formValues, NameValueCollection headers)
             : base(page, query, output)
         {
-            this.cookies = cookies;
-            this.httpVerbName = httpVerbName;
-            this.formValues = formValues;
-            this.headers = headers;
+            _cookies = cookies;
+            _httpVerbName = httpVerbName;
+            _formValues = formValues;
+            _headers = headers;
         }
 
         public override string GetHttpVerbName()
         {
-            return httpVerbName;
+            return _httpVerbName;
         }
 
         public override string GetKnownRequestHeader(int index)
         {
             // Override "Content-Type" header for POST requests, otherwise ASP.NET won't read the Form collection
             if (index == 12)
-                if (string.Equals(httpVerbName, "post", StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(_httpVerbName, "post", StringComparison.OrdinalIgnoreCase))
                     return "application/x-www-form-urlencoded";
 
-            switch (index) {
+            switch (index)
+            {
                 case 0x19:
                     return MakeCookieHeader();
                 default:
-                    if (headers == null)
+                    if (_headers == null)
                         return null;
-                    return headers[GetKnownRequestHeaderName(index)];
+
+                    return _headers[GetKnownRequestHeaderName(index)];
             }
         }
 
         public override string GetUnknownRequestHeader(string name)
         {
-            if(headers == null)
+            if (_headers == null)
                 return null;
-            return headers[name];
+
+            return _headers[name];
         }
 
         public override string[][] GetUnknownRequestHeaders()
         {
-            if (headers == null)
+            if (_headers == null)
                 return null;
-            var unknownHeaders = from key in headers.Keys.Cast<string>()
+
+            var unknownHeaders = from key in _headers.Keys.Cast<string>()
                                  let knownRequestHeaderIndex = GetKnownRequestHeaderIndex(key)
                                  where knownRequestHeaderIndex < 0
-                                 select new[] { key, headers[key] };
+                                 select new[] { key, _headers[key] };
+
             return unknownHeaders.ToArray();
         }
 
         public override byte[] GetPreloadedEntityBody()
         {
-            if(formValues == null)
+            if (_formValues == null)
                 return base.GetPreloadedEntityBody();
 
             var sb = new StringBuilder();
-            foreach (string key in formValues)
-                sb.AppendFormat("{0}={1}&", HttpUtility.UrlEncode(key), HttpUtility.UrlEncode(formValues[key]));
+
+            foreach (string key in _formValues)
+                sb.AppendFormat("{0}={1}&", HttpUtility.UrlEncode(key), HttpUtility.UrlEncode(_formValues[key]));
+
             return Encoding.UTF8.GetBytes(sb.ToString());
         }
 
         private string MakeCookieHeader()
         {
-            if((cookies == null) || (cookies.Count == 0))
+            if ((_cookies == null) || (_cookies.Count == 0))
                 return null;
+
             var sb = new StringBuilder();
-            foreach (string cookieName in cookies)
-                sb.AppendFormat("{0}={1};", cookieName, cookies[cookieName].Value);
+
+            foreach (string cookieName in _cookies)
+                sb.AppendFormat("{0}={1};", cookieName, _cookies[cookieName].Value);
+
             return sb.ToString();
         }
     }

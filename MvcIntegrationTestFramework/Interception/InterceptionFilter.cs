@@ -9,16 +9,17 @@ namespace MvcIntegrationTestFramework.Interception
     /// </summary>
     internal class InterceptionFilter : ActionFilterAttribute
     {
-        private HttpContext lastHttpContext;
+        private HttpContext _lastHttpContext;
 
         public override void OnActionExecuted(ActionExecutedContext filterContext)
         {
-            if (lastHttpContext == null)
-                lastHttpContext = HttpContext.Current;
+            if (_lastHttpContext == null)
+                _lastHttpContext = HttpContext.Current;
 
             // Clone to get a more stable snapshot
             if ((filterContext != null) && (LastRequestData.ActionExecutedContext == null))
-                LastRequestData.ActionExecutedContext = new ActionExecutedContext {
+                LastRequestData.ActionExecutedContext = new ActionExecutedContext
+                {
                     ActionDescriptor = filterContext.ActionDescriptor,
                     Canceled = filterContext.Canceled,
                     Controller = filterContext.Controller,
@@ -35,7 +36,8 @@ namespace MvcIntegrationTestFramework.Interception
         {
             // Clone to get a more stable snapshot
             if ((filterContext != null) && (LastRequestData.ResultExecutedContext == null))
-                LastRequestData.ResultExecutedContext = new ResultExecutedContext {
+                LastRequestData.ResultExecutedContext = new ResultExecutedContext
+                {
                     Canceled = filterContext.Canceled,
                     Exception = filterContext.Exception,
                     Controller = filterContext.Controller,
